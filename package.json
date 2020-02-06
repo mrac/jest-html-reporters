@@ -1,13 +1,13 @@
 {
-  "name": "jest-html-reporters",
-  "version": "1.2.1",
+  "name": "jest-html-reporters-diffimages",
+  "version": "1.3.0",
   "description": "Jest test results processor for generating a summary in HTML",
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --config=webpack.development.config.js",
     "build": "webpack --progress",
     "start": "npm run dev",
-    "test": "jest"
+    "test": "jest || echo \"\nRun 'npm run build' if the test fails because of missing 'dist/index.html' file.\n\""
   },
   "keywords": [
     "jest",
