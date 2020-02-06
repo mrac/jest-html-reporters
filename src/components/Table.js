@@ -54,93 +54,118 @@ const renderTime = ({
   perfStats: { start, end }
 }) => getFormatTime(start, end)
 
-const getColumns = (rootDir) => [
-  {
-    title: 'File',
-    dataIndex: 'testFilePath',
-    key: 'name',
-    render: text => {
-      const relativePath = text.replace(new RegExp('^' + rootDir), '')
-      return <span>
-        <span className='copy_icon' title='click to copy path to clipborad'>
-          <Icon type='file' theme='twoTone'
-            onClick={() => {
-              const execCommand = 'npx jest .' + relativePath
-              copy(execCommand)
-              message.success('Copy succeed! The command has been copied to the clipboard.')
-            }} />
+const getColumns = (rootDir, transformFailureMessageToImagePath) => {
+  const columns = [
+    {
+      title: 'File',
+      dataIndex: 'testFilePath',
+      key: 'name',
+      render: text => {
+        const relativePath = text.replace(new RegExp('^' + rootDir), '')
+        return <span>
+          <span className='copy_icon' title='click to copy path to clipborad'>
+            <Icon type='file' theme='twoTone'
+              onClick={() => {
+                const execCommand = 'npx jest .' + relativePath
+                copy(execCommand)
+                message.success('Copy succeed! The command has been copied to the clipboard.')
+              }} />
+          </span>
+          <span className='path_text' id={text} > {relativePath}</span>
         </span>
-        <span className='path_text' id={text} > {relativePath}</span>
-      </span>
-    }
-  },
-  {
-    title: 'UseTime',
-    key: 'UseTime',
-    render: renderTime,
-    width: '150px',
-    sorter: (a, b) => (a.perfStats.end - a.perfStats.start) - (b.perfStats.end - b.perfStats.start),
-  },
-  { title: 'Status',
-    key: 'status',
-    render: renderStatus,
-    width: '150px',
-    filters: [
-      { text: 'Passed', value: 'passed' },
-      { text: 'Failed', value: 'failed' },
-      { text: 'Pending', value: 'pending' },
-      { text: 'Todo', value: 'todo' },
-      { text: 'Not Passed', value: 'noPass' },
-    ],
-    filterMultiple: false,
-    onFilter: (value, { numFailingTests,
-      numPendingTests, testExecError, numTodoTests }) => {
-      switch (value) {
-        case 'passed':
-          return !(testExecError || numFailingTests > 0 || numPendingTests > 0)
-        case 'failed':
-          return testExecError || numFailingTests > 0
-        case 'pending':
-          return numPendingTests > 0
-        case 'todo':
-          return numTodoTests > 0
-        case 'noPass':
-          return (testExecError || numFailingTests > 0 || numPendingTests > 0)
       }
     },
-  },
-  {
-    width: '100px',
-    title: 'Action',
-    key: 'operation',
-    render: ({ failureMessage }) => <ErrorButton failureMessage={failureMessage} />
-  },
-]
-
-const TableItem = ({ testResults, config: { rootDir }, globalExpandState }) =>
-  <Consumer>
     {
-      ({ expand, toggleExpand }) =>
-        <Table
-          size='small'
-          pagination={false}
-          rowKey='testFilePath'
-          rowClassName={({ numFailingTests, numPendingTests, numTodoTests, testExecError }, index) => {
-            let status = ''
-            if (testExecError) status = 'failed'
-            else if (numFailingTests) status = 'failed'
-            else if (numPendingTests) status = 'pending'
-            else if (numTodoTests) status = 'todo'
-            return getRecordClass(status, index)
-          }}
-          expandedRowRender={
-            ({ testResults }) => <DetailTable data={testResults} />
-          }
-          expandedRowKeys={getExistKeys(expand, globalExpandState)}
-          onExpand={(state, { testFilePath }) => toggleExpand({ key: testFilePath, state })}
-          columns={getColumns(rootDir)}
-          dataSource={testResults} />
+      title: 'UseTime',
+      key: 'UseTime',
+      render: renderTime,
+      width: '150px',
+      sorter: (a, b) => (a.perfStats.end - a.perfStats.start) - (b.perfStats.end - b.perfStats.start),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: renderStatus,
+      width: '150px',
+      filters: [
+        { text: 'Passed', value: 'passed' },
+        { text: 'Failed', value: 'failed' },
+        { text: 'Pending', value: 'pending' },
+        { text: 'Todo', value: 'todo' },
+        { text: 'Not Passed', value: 'noPass' },
+      ],
+      filterMultiple: false,
+      onFilter: (value, { numFailingTests,
+        numPendingTests, testExecError, numTodoTests }) => {
+        switch (value) {
+          case 'passed':
+            return !(testExecError || numFailingTests > 0 || numPendingTests > 0)
+          case 'failed':
+            return testExecError || numFailingTests > 0
+          case 'pending':
+            return numPendingTests > 0
+          case 'todo':
+            return numTodoTests > 0
+          case 'noPass':
+            return (testExecError || numFailingTests > 0 || numPendingTests > 0)
+        }
+      },
+    },
+    {
+      width: '100px',
+      title: 'Action',
+      key: 'operation',
+      render: ({ failureMessage }) => <ErrorButton failureMessage={failureMessage} />
     }
-  </Consumer>
+  ];
+
+  return transformFailureMessageToImagePath ? [
+    ...columns,
+    {
+      width: '100px',
+      title: 'DiffImage',
+      key: 'diffImage',
+      render: ({ failureMessages }) => <div />
+    }
+  ] : columns;
+};
+
+const unpackTransformFailureMessageToImagePath = (_reporterOptions) => {
+  const str = (_reporterOptions || {}).transformFailureMessageToImagePath;
+  return str ? Function(`return ${str}`)() : null;
+};
+
+const TableItem = ({ testResults, config: { rootDir }, _reporterOptions, globalExpandState, _ }) => {
+
+  const transformFailureMessageToImagePath = unpackTransformFailureMessageToImagePath(_reporterOptions);
+
+  return (
+    <Consumer>
+      {
+        ({ expand, toggleExpand }) =>
+          <Table
+            size='small'
+            pagination={false}
+            rowKey='testFilePath'
+            rowClassName={({ numFailingTests, numPendingTests, numTodoTests, testExecError }, index) => {
+              let status = ''
+              if (testExecError) status = 'failed'
+              else if (numFailingTests) status = 'failed'
+              else if (numPendingTests) status = 'pending'
+              else if (numTodoTests) status = 'todo'
+              return getRecordClass(status, index)
+            }}
+            expandedRowRender={
+              ({ testResults }) => <DetailTable data={testResults} transformFailureMessageToImagePath={transformFailureMessageToImagePath} />
+            }
+            expandedRowKeys={getExistKeys(expand, globalExpandState)}
+            onExpand={(state, { testFilePath }) => toggleExpand({ key: testFilePath, state })}
+            columns={getColumns(rootDir, transformFailureMessageToImagePath)}
+            dataSource={testResults}
+          />
+      }
+    </Consumer>
+  )
+}
 
 export default TableItem

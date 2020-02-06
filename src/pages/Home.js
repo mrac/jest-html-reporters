@@ -5,12 +5,16 @@ import DashBoard from '../components/DashBoard'
 import Information from '../components/Information'
 import CustomInformation from '../components/CustomInformation'
 
+const backTopStyle = {
+  right: '35px'
+};
+
 class HomePage extends Component {
   state = {
     ...window.realData,
     globalExpandState: window.realData._reporterOptions.expand || false,
   }
-  render () {
+  render() {
     const { customInfos } = window.realData._reporterOptions
     let CustomInfoComp
     if (customInfos && customInfos.length > 0) {
@@ -23,7 +27,7 @@ class HomePage extends Component {
     }
     return (
       <div>
-        <BackTop />
+        <BackTop style={backTopStyle} />
         <h3 className='area_subject'><Icon type='appstore' theme='outlined' />Dashboard</h3>
         <DashBoard {...this.state} />
         {CustomInfoComp}
