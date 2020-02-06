@@ -18,6 +18,7 @@ if (process.env.NODE_ENV === 'production') {
   data = JSON.parse(window.resData)
 } else {
   data = require('./devMock.json')
+  data._reporterOptions = { ...data._reporterOptions, ...require('./devMockReporterOptions.js').default };
 }
 const defaultTitle = 'Report'
 window.realData = data

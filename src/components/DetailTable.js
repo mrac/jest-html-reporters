@@ -2,6 +2,7 @@ import React from 'react'
 import { Table, Icon, Tooltip } from 'antd'
 import { getRecordClass, getFormatTime } from '@/untils'
 import ErrorButton from './ErrorButton'
+import DiffImageButton from './DiffImageButton';
 
 const renderStatus = (status) => {
   let info
@@ -18,7 +19,7 @@ const renderStatus = (status) => {
         <span className='detail_status_text'>{status}</span>
       </span>
       break
-    case 'failed' :
+    case 'failed':
       info = <span style={{ color: '#fafafa' }} >
         <Icon type='close' theme='outlined' />
         <span className='detail_status_text'>{status}</span>
@@ -69,15 +70,31 @@ const columns = [
   }
 ]
 
-const DetailTable = ({ data }) =>
-  <Table
-    bordered
-    size='small'
-    showHeader={false}
-    rowKey={(_, index) => `${index}`}
-    rowClassName={({ status }, index) => getRecordClass(status, index)}
-    dataSource={data}
-    columns={columns}
-    pagination={false} />
+const DetailTable = ({ data, transformFailureMessageToImagePath }) => {
+
+  const columnsDef = transformFailureMessageToImagePath ? [
+    ...columns,
+    {
+      width: '100px',
+      title: 'DiffImage',
+      key: 'diffImage',
+      render: ({ failureMessages }) => <DiffImageButton failureMessage={failureMessages[0]} transformFailureMessageToImagePath={transformFailureMessageToImagePath} />
+    }
+  ] : columns;
+
+  return (
+    <Table
+      bordered
+      size='small'
+      showHeader={false}
+      rowKey={(_, index) => `${index}`}
+      rowClassName={({ status }, index) => getRecordClass(status, index)}
+      dataSource={data}
+      columns={columnsDef}
+      pagination={false} />
+  )
+
+}
+
 
 export default DetailTable

@@ -45,8 +45,12 @@ The options below are specific to the reporter.
 | `logoImgPath` | string  | undefined                | specify path of the image that will be displayed to the right of page title                                                                                                                                                                                                                          |
 | `hideIcon`    | Boolean | false                    | hide default icon                                                                                                                                                                                                                                                                                    |
 | `customInfos` | array   | undefined                | show some custom data info in the report, example value `[ {title: 'test1', value: 'test1'}, {title: 'test2', value: 'test2'}]`, you can also set value to a environment variable **JEST_HTML_REPORTERS_CUSTOM_INFOS**, see detail in [#32](https://github.com/Hazyzh/jest-html-reporters/issues/32) |
+| `transformFailureMessageToImagePath` | string   | undefined                | a function that parses `failureMessage` of the jest report and returns a path to a diff image, for failed visual tests (especially useful with [jest-image-snapshot](https://github.com/americanexpress/jest-image-snapshot/issues) library). The function has to be a pure function and it should be stringified (apply `.toString()` method) |
 
 #### example add config options
+
+**JSON config:**
+
 ```json
 ...,
 "reporters": [
@@ -55,6 +59,27 @@ The options below are specific to the reporter.
     "publicPath": "./html-report",
     "filename": "report.html",
     "expand": true
+  }]
+]
+```
+
+**JS config:**
+
+```js
+...,
+reporters: [
+  "default",
+  ["jest-html-reporters", {
+    publicPath: "./html-report",
+    filename: "report.html",
+    expand: true,
+    transformFailureMessageToImagePath: (failureMessage => {
+      const DIR = "diffimages";
+      const REGEXP = /See diff for details:[^/]*(\/.*\.png)/;
+      const path = ((failureMessage || "").match(REGEXP || / /) || [])[1];
+      const relativePath = ((path || "").match(/\/src\/(.*\.png)/) || [])[1];
+      return relativePath ? `${DIR}/${relativePath}` : "";
+    }).toString()
   }]
 ]
 ```
