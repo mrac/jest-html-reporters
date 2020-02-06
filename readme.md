@@ -14,7 +14,7 @@ Jest test results processor for generating a summary in HTML
 ---
 
 ```shell
-  npm install jest-html-reporters --save-dev
+  npm install jest-html-reporters-diffimages --save-dev
 ```
 
 ### Usage
@@ -25,7 +25,7 @@ Configure Jest to process the test results by adding the following entry to the 
   ...,
   "reporters": [
     "default",
-    "jest-html-reporters"
+    "jest-html-reporters-diffimages"
   ],
   ...
 }
@@ -55,7 +55,7 @@ The options below are specific to the reporter.
 ...,
 "reporters": [
   "default",
-  ["jest-html-reporters", {
+  ["jest-html-reporters-diffimages", {
     "publicPath": "./html-report",
     "filename": "report.html",
     "expand": true
@@ -69,7 +69,7 @@ The options below are specific to the reporter.
 ...,
 reporters: [
   "default",
-  ["jest-html-reporters", {
+  ["jest-html-reporters-diffimages", {
     publicPath: "./html-report",
     filename: "report.html",
     expand: true,
