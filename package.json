@@ -16,16 +16,15 @@
     "report",
     "plugin"
   ],
-  "author": "Hazyzh",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hazyzh/jest-html-reporters.git"
+    "url": "git+https://github.com/mrac/jest-html-reporters.git"
   },
   "bugs": {
-    "url": "https://github.com/Hazyzh/jest-html-reporters/issues"
+    "url": "https://github.com/mrac/jest-html-reporters/issues"
   },
-  "homepage": "https://github.com/Hazyzh/jest-html-reporters#readme",
+  "homepage": "https://github.com/mrac/jest-html-reporters#readme",
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
